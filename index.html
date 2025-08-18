@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="css.css" />
+    <link
+      rel="stylesheet"
+      href="css.css"
+    />
     <title>International Photography Day Contest - Acharya Polytechnic</title>
   </head>
   <body>
@@ -151,7 +154,6 @@
 
 </style>
 
-
     <script>
       const form = document.getElementById("form");
       const submitButton = document.getElementById("submit-button");
@@ -159,22 +161,27 @@
       const fileInput = document.getElementById("fileInput");
       const fileNameDisplay = document.getElementById("fileNameDisplay");
 
+      // Update displayed filename on file selection
       fileInput.addEventListener("change", function () {
-        fileNameDisplay.textContent = this.files.length
-          ? this.files[0].name
-          : "No file selected";
+        if (this.files && this.files.length > 0) {
+          fileNameDisplay.textContent = this.files[0].name;
+        } else {
+          fileNameDisplay.textContent = "No file selected";
+        }
       });
 
+      // Function to handle file upload
       async function uploadFile(file) {
         return new Promise((resolve, reject) => {
           const fr = new FileReader();
           fr.onload = (e) => {
             const data = e.target.result.split(",");
-            resolve({
+            const obj = {
               fileName: file.name,
-              mimeType: data[0].match(/:(\\w.+);/)[1],
+              mimeType: data[0].match(/:(\w.+);/)[1],
               data: data[1],
-            });
+            };
+            resolve(obj);
           };
           fr.onerror = reject;
           fr.readAsDataURL(file);
@@ -194,28 +201,36 @@
         try {
           const formData = new FormData(this);
           const formDataObj = {};
-          for (let [key, value] of formData.entries()) formDataObj[key] = value;
 
-          if (fileInput.files.length > 0) {
-            const fileObj = await uploadFile(fileInput.files[0]);
-            formDataObj.fileData = fileObj;
+          // Convert FormData to object
+          for (let [key, value] of formData.entries()) {
+            formDataObj[key] = value;
           }
 
+          // Handle file upload if a file is selected
+          if (fileInput.files.length > 0) {
+            const fileObj = await uploadFile(fileInput.files[0]);
+            formDataObj.fileData = fileObj; // Add file data to form data
+          }
+
+          // Submit form data
           const scriptURL =
-            "https://script.google.com/macros/s/AKfycbz_pmlwoWNLXJB2cbrdN8At3KsHLOTcbYvxwi7bVFtca8JXYqhw1MCYa38XKLqnj0s3/exec";
+            "https://script.google.com/macros/s/AKfycbwQJ2FXp_ZCll8rUVLK8Qb_8qrQIVnr3Pmsq7R1I8OWAbXHWf3qiFjLVrdv66VAG9V9_w/exec";
 
           const response = await fetch(scriptURL, {
             redirect: "follow",
             method: "POST",
             body: JSON.stringify(formDataObj),
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8",
+            },
           });
 
           const data = await response.json();
 
           if (data.status === "success") {
             messageDiv.textContent =
-              data.message || "Your photo was submitted successfully!";
+              data.message || "Data submitted successfully!";
             messageDiv.style.backgroundColor = "#48c78e";
             messageDiv.style.color = "white";
             form.reset();
@@ -224,17 +239,27 @@
             throw new Error(data.message || "Submission failed");
           }
         } catch (error) {
+          console.error("Error:", error);
           messageDiv.textContent = "Error: " + error.message;
           messageDiv.style.backgroundColor = "#f14668";
           messageDiv.style.color = "white";
         } finally {
           submitButton.disabled = false;
           submitButton.classList.remove("is-loading");
+
           setTimeout(() => {
             messageDiv.textContent = "";
             messageDiv.style.display = "none";
           }, 4000);
         }
+      });
+
+      // Enhance cancel button to reset file input display
+      const cancelButton = form.querySelector("button.is-danger");
+      cancelButton.addEventListener("click", function () {
+        form.reset();
+        fileNameDisplay.textContent = "No file selected";
+        messageDiv.style.display = "none";
       });
     </script>
   </body>
