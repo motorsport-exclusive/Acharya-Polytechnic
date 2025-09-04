@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher's Day Volunteer Registration</title>
+  <style>
+    /* Reset + fonts */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 30px 35px;
+      color: #fff;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    .logo {
+      max-width: 90px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 400;
+      margin-bottom: 25px;
+      opacity: 0.9;
+    }
+
+    .field {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .radio-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .radio-group label {
+      font-weight: normal;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #ff6a00;
+      background: linear-gradient(135deg, #ff6a00, #ee0979);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .success {
+      background: rgba(0, 255, 0, 0.2);
+      color: #00ff9d;
+    }
+
+    .error {
+      background: rgba(255, 0, 0, 0.2);
+      color: #ff8a8a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Replace with your college logo -->
+    <img src="Acharya_polytechnic_logo.png" alt="College Logo" class="logo" />
+    <h1>Volunteer Registration</h1>
+    <h2>Teacher’s Day Celebration</h2>
+
+    <form id="form">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" name="Student" placeholder="Enter your full name" required />
+      </div>
+
+      <div class="field">
+        <label>Acharya Mail ID</label>
+        <input type="email" name="Email" placeholder="Enter your email address" required />
+      </div>
+
+      <div class="field">
+  <label>Phone Number</label>
+  <input type="number" name="Phone" placeholder="Enter your phone number" required pattern="[0-9]{10}" />
+</div>
+
+
+      <div class="field">
+        <label>Department</label>
+        <input type="text" name="Department" placeholder="Enter your department" />
+      </div>
+
+      <div class="field">
+        <label>Semester</label>
+        <input type="text" name="Semester" placeholder="Enter your semester" />
+      </div>
+
+      <div class="field">
+        <label>Select One</label>
+        <div class="radio-group">
+          <label><input type="radio" name="Interest" value="Interested" required /> Interested</label>
+          <label><input type="radio" name="Interest" value="Not Interested" /> Not Interested</label>
+        </div>
+      </div>
+
+      <button class="btn" type="submit" id="submit-button">Submit</button>
+    </form>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const messageDiv = document.getElementById("message");
+    const submitButton = document.getElementById("submit-button");
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      messageDiv.style.display = "block";
+      messageDiv.textContent = "Submitting...";
+      messageDiv.className = "message";
+
+      submitButton.disabled = true;
+
+      try {
+        const formData = new FormData(form);
+        const formDataObj = {};
+        for (let [key, value] of formData.entries()) {
+          formDataObj[key] = value;
+        }
+
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxOiUWskCPrelVyibpg8XelrXFgNQj7aw9WmGqTQaoQhRjhriTmZfkpgmcRsTESQ-2u/exec";
+
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(formDataObj),
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+          messageDiv.textContent = data.message || "Thank you! Your response has been recorded.";
+          messageDiv.className = "message success";
+          form.reset();
+        } else {
+          throw new Error(data.message || "Submission failed");
+        }
+      } catch (error) {
+        messageDiv.textContent = "Error: " + error.message;
+        messageDiv.className = "message error";
+      } finally {
+        submitButton.disabled = false;
+        setTimeout(() => { messageDiv.style.display = "none"; }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
